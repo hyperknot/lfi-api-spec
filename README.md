@@ -35,7 +35,7 @@ This specification uses RFC 2119 keywords (MUST/SHOULD/MAY).
 ## Roles
 
 - **Publisher** (aka Manufacturer): Operates the tracking devices and a server that pushes data. Knows its manufacturer ID (`manufacturer_id`).
-- **Ingestor**: Receives data, validates, stores, deduplicates, and associates it to groups/tasks. The **Ingestor** operates the endpoint URLs and issues tokens.
+- **Ingestor**: Receives data, validates, stores, deduplicates, and associates it to groups/tasks. The **Ingestor** operates the endpoint URLs.
 
 ---
 
