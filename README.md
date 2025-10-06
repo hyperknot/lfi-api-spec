@@ -1,11 +1,20 @@
-# Live Flight Ingest API (LFIA)
+# Live Flight Ingest API Specification (LFIA)
 
-Push-only, server-to-server ingest for live tracking of paragliders and hang gliders. This document uses RFC 2119 keywords (MUST/SHOULD/MAY).
+**Version:** 0.1 (Draft)
+**Repository:** [lfia-spec](https://github.com/hyperknot/lfia-spec)
 
-## What this is
+Push-only, server-to-server ingest protocol for live tracking of paragliders and hang gliders.
 
-- LFIA lets a manufacturer's server (**Publisher**) push live tracker points and task metadata to a tracking server (**Ingestor**).
-- **Push-only**: the **Ingestor** never calls the **Publisher**. There are no pull, webhook, or callback flows.
+---
+
+## About this specification
+
+LFIA defines a standard protocol for manufacturers to push live flight tracking data to tracking servers. This document describes the requirements and behavior that both sides must implement to be LFIA-compliant.
+
+### What this specification defines
+
+- **LFIA** lets a manufacturer's server (**Publisher**) push live tracker points and task metadata to a tracking server (**Ingestor**).
+- **Push-only architecture**: the **Ingestor** never calls the **Publisher**. There are no pull, webhook, or callback flows.
 - The **Publisher** sends:
   - Raw, unsorted GPS points in small batches, as they are produced.
   - Periodic metadata saying which trackers belong to which groups/competitions and the active task definition.
@@ -13,10 +22,22 @@ Push-only, server-to-server ingest for live tracking of paragliders and hang gli
   - Sorting and deduplicating points per tracker.
   - Mapping tracker IDs into groups/competitions and their tasks for scoring/visualization.
 
+### Document status
+
+This is a draft specification. Implementations should be considered experimental until version 1.0 is finalized.
+
+### Conventions
+
+This specification uses RFC 2119 keywords (MUST/SHOULD/MAY).
+
+---
+
 ## Roles
 
-- **Publisher** (aka Manufacturer): You operate the devices and a server that pushes data. You know your manufacturer ID (`manufacturer_id`).
-- **Ingestor**: Receives data, validates, stores, deduplicates, and associates it to groups/tasks. The **Ingestor** runs the endpoint URLs and issues tokens.
+- **Publisher** (aka Manufacturer): Operates the tracking devices and a server that pushes data. Knows its manufacturer ID (`manufacturer_id`).
+- **Ingestor**: Receives data, validates, stores, deduplicates, and associates it to groups/tasks. The **Ingestor** operates the endpoint URLs and issues tokens.
+
+---
 
 ## Scope
 
@@ -50,7 +71,7 @@ Push-only, server-to-server ingest for live tracking of paragliders and hang gli
   - **Length**: Tokens SHOULD be at least 32 characters long.
   - **Example**: `8Kp1xA3dE6fQ9LmN2rT5vW8yZ1bC4hJ`
 - **Provisioning** (what this means in practice):
-  - **Out-of-band**: Tokens are exchanged outside this API (e.g., in person or email).
+  - **Out-of-band**: Tokens are exchanged outside this protocol (e.g., in person or email).
   - Each token is assigned to exactly one `manufacturer_id` by the **Ingestor**.
   - The **Ingestor** MAY keep multiple active tokens for the same `manufacturer_id` to allow rotation (issue new token, switch sender, then revoke old).
   - Treat tokens as secrets; do not log or expose them.
@@ -64,10 +85,11 @@ Push-only, server-to-server ingest for live tracking of paragliders and hang gli
 - **Coordinates**: `lat`/`lon` in decimal degrees (WGS84). **Publishers** SHOULD send 6 decimal places.
 - **Altitude**: `alt` in integer meters above the WGS84 ellipsoid (GPS altitude).
 - **Optional static pressure**: `p` in integer pascals (if available).
+  - **About static pressure**: This is the raw barometric pressure reading from the sensor, expressed in pascals. While the IGC specification uses "pressure altitude" expressed in meters (which requires conversion using the International Standard Atmosphere model), LFIA uses the raw static pressure in pascals to avoid confusion and conversion errors. This is the same physical measurement, but expressed in its native sensor units. If you have pressure altitude in meters from an IGC file, you would need to convert it back to static pressure in pascals to comply with this specification.
 - **Timestamps**:
   - Raw points: UTC, integer seconds since Unix epoch.
   - XCTSK task times: passed through as given by the XCTSK format (see link below).
-- **Unknown fields**: **Ingestors** ignore unknown JSON fields (forward compatibility).
+- **Unknown fields**: **Ingestors** MUST ignore unknown JSON fields (forward compatibility).
 - **Payload size**: The **Ingestor** MAY reject very large requests; a soft limit of 10,000 raw points per request is RECOMMENDED.
 - **Identifier rules** (`group_id` and tracker IDs):
   - `manufacturer_id` (like "flymaster"): string matching regex `[a-z0-9_]+`
@@ -283,7 +305,7 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
 
 ---
 
-## Validation summary (who does what)
+## Compliance requirements
 
 ### Publisher MUST
 
@@ -294,10 +316,14 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
 - Send metadata about every 10 minutes and include ALL groups/tasks active now or within the last 24 hours.
 - Keep `group_id` stable across any renames of `group_name`.
 
-### Ingestor SHOULD
+### Ingestor MUST
 
 - Verify the Bearer token and its association to the provided `manufacturer_id`.
 - Ignore unknown JSON fields.
+- Always respond with JSON per the "Responses" section.
+
+### Ingestor SHOULD
+
 - For `/raw-data`:
   - Drop points with `t` > `now_utc` + 5 seconds.
   - Drop points with `t` < `now_utc` − 24 hours.
@@ -308,7 +334,6 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
   - Treat each push as the latest snapshot for the last 24 hours.
   - Use (`manufacturer_id`, `group_id`) as the identity for last-write-wins.
   - Allow a tracker to exist in multiple groups simultaneously, including `__FREEFLYERS__`.
-- Always respond with JSON per "Responses" above.
 
 ---
 
@@ -322,4 +347,17 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
 ## Versioning and compatibility
 
 - The base URL may include a version component chosen by the **Ingestor** (e.g., `/ingest/v1`).
-- Unknown fields are ignored to allow forward-compatible extensions.
+- Unknown fields MUST be ignored by **Ingestors** to allow forward-compatible extensions.
+- This specification may evolve; implementations should check the repository for updates.
+
+---
+
+## Contributing
+
+This specification is maintained at [github.com/hyperknot/lfia-spec](https://github.com/hyperknot/lfia-spec). Issues and pull requests are welcome.
+
+---
+
+## License
+
+MIT
