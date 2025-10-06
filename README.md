@@ -1,6 +1,6 @@
 # Live Flight Ingest API Specification (LFIA)
 
-**Version:** 0.1 (Draft)
+**Version:** 0.1 (Draft)\
 **Repository:** [lfia-spec](https://github.com/hyperknot/lfia-spec)
 
 Push-only, server-to-server ingest protocol for live tracking of paragliders and hang gliders.
@@ -145,7 +145,14 @@ Push live raw GPS/baro points from any number of trackers. Batches may be out-of
 {
   "manufacturer_id": "flymaster",
   "raw_data": [
-    { "tid": "f2d24a", "t": 1718130000, "lat": 47.123456, "lon": 12.654321, "alt": 1832, "p": 970123 },
+    {
+      "tid": "f2d24a",
+      "t": 1718130000,
+      "lat": 47.123456,
+      "lon": 12.654321,
+      "alt": 1832,
+      "p": 970123
+    },
     { "tid": "f2d24a", "t": 1718130060, "lat": 47.123555, "lon": 12.654222, "alt": 1841 },
     { "tid": "g9x88z", "t": 1718130030, "lat": 47.001122, "lon": 12.331144, "alt": 1599 }
   ]
@@ -220,9 +227,21 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
           "taskType": "CLASSIC",
           "version": 1,
           "turnpoints": [
-            { "type": "TAKEOFF", "radius": 200, "waypoint": { "name": "TO", "lat": 46.0, "lon": 13.0, "altSmoothed": 980 } },
-            { "type": "SSS",     "radius": 1000, "waypoint": { "name": "Start", "lat": 46.05, "lon": 13.1, "altSmoothed": 1400 } },
-            { "type": "ESS",     "radius": 400,  "waypoint": { "name": "Goal", "lat": 46.1, "lon": 13.2, "altSmoothed": 500 } }
+            {
+              "type": "TAKEOFF",
+              "radius": 200,
+              "waypoint": { "name": "TO", "lat": 46.0, "lon": 13.0, "altSmoothed": 980 }
+            },
+            {
+              "type": "SSS",
+              "radius": 1000,
+              "waypoint": { "name": "Start", "lat": 46.05, "lon": 13.1, "altSmoothed": 1400 }
+            },
+            {
+              "type": "ESS",
+              "radius": 400,
+              "waypoint": { "name": "Goal", "lat": 46.1, "lon": 13.2, "altSmoothed": 500 }
+            }
           ]
         }
       }
@@ -257,21 +276,21 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
     {
       "type": "TAKEOFF",
       "radius": 200,
-      "waypoint": { "name": "TO", "lat": 46.000000, "lon": 13.000000, "altSmoothed": 980 }
+      "waypoint": { "name": "TO", "lat": 46.0, "lon": 13.0, "altSmoothed": 980 }
     },
     {
       "type": "SSS",
       "radius": 1000,
-      "waypoint": { "name": "Start", "lat": 46.050000, "lon": 13.100000, "altSmoothed": 1400 }
+      "waypoint": { "name": "Start", "lat": 46.05, "lon": 13.1, "altSmoothed": 1400 }
     },
     {
       "type": "ESS",
       "radius": 400,
-      "waypoint": { "name": "Goal", "lat": 46.100000, "lon": 13.200000, "altSmoothed": 500 }
+      "waypoint": { "name": "Goal", "lat": 46.1, "lon": 13.2, "altSmoothed": 500 }
     }
   ],
   "takeoff": { "timeOpen": "09:30:00Z", "timeClose": "11:00:00Z" },
-  "sss": { "type": "ELAPSED-TIME", "timeGates": ["11:00:00Z","11:15:00Z","11:30:00Z"] },
+  "sss": { "type": "ELAPSED-TIME", "timeGates": ["11:00:00Z", "11:15:00Z", "11:30:00Z"] },
   "goal": { "type": "CYLINDER", "deadline": "17:00:00Z" }
 }
 ```
@@ -354,7 +373,7 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
 
 ## Contributing
 
-This specification is maintained at [github.com/hyperknot/lfia-spec](https://github.com/hyperknot/lfia-spec). Issues and pull requests are welcome.
+This specification is maintained at [github.com/hyperknot/lfia-spec](https://github.com/hyperknot/lfia-spec).
 
 ---
 
