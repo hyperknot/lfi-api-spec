@@ -82,13 +82,16 @@ This specification uses RFC 2119 keywords (MUST/SHOULD/MAY).
 
 ## Common data rules
 
-- **Coordinates**: `lat`/`lon` in decimal degrees (WGS84). **Publishers** SHOULD send exactly 6 decimal places.
-- **Altitude**: `alt` in integer meters above the WGS84 ellipsoid (GPS altitude).
-- **Optional static pressure**: `p` in integer pascals (if available).
+- **Coordinates**: `lat`/`lon` in decimal degrees (WGS84). 6–7 decimals are typical, but any reasonable precision is allowed.
+- **Altitude**: `alt` in integer meters above the WGS84 ellipsoid (GPS altitude; not MSL).
+- **Optional static pressure**: `p` in integer pascals (Pa).
   - **About static pressure**: This is the raw barometric pressure reading from the sensor, expressed in pascals. While the IGC specification uses "pressure altitude" expressed in meters (which requires conversion using the International Standard Atmosphere model), LFI API uses the raw static pressure in pascals to avoid confusion and conversion errors. This is the same physical measurement, but expressed in its native sensor units. If you have pressure altitude in meters like in an IGC file, you would need to convert it back to static pressure in pascals to comply with this specification.
+- **Distances** meters.
+- **Angles**: degrees relative to True North, normalized to [0, 360).
+- **Speeds**: meters per second (m/s).
 - **Timestamps**:
   - Raw points: UTC, integer seconds since Unix epoch.
-  - XCTSK task times: passed through as given by the XCTSK format (see link below).
+  - XCTSK task times: passed through as given by the XCTSK format.
 - **Unknown fields**: **Ingestors** MUST ignore unknown JSON fields (forward compatibility).
 - **Payload size**: The **Ingestor** MAY reject very large requests; a soft limit of 10,000 raw points per request is RECOMMENDED.
 - **Identifier rules** (`group_id` and tracker IDs):
@@ -124,11 +127,11 @@ Push live raw GPS/baro points from any number of trackers. Batches may be out-of
 
 #### Optional fields:
   - `p` (integer): static pressure in pascals
-  - `bearing` (integer): course over ground, 0-360 degrees, reference True North. This is the direction of travel (course over ground from NMEA GPS), NOT bearing to a waypoint.
-  - `ground_speed` (number): ground speed in km/h, max 1 decimal place
-  - `vertical_speed` (number): vertical speed (vario/climb rate) in m/s, max 1 decimal place
-  - `wd` (integer): wind direction, 0-360 degrees
-  - `ws` (number): wind speed in km/h, max 1 decimal place
+  - `bearing` (number): course over ground, degrees [0, 360), True North reference. Direction of travel (course over ground from NMEA GPS), NOT bearing to a waypoint.
+  - `ground_speed` (number): ground speed in m/s, max 1 decimal place
+  - `vertical_speed` (number): vertical speed (vario/climb rate) in m/s, max 1 decimal place. Positive is up.
+  - `wd` (number): wind direction in degrees [0, 360), True North reference, meteorological "from" direction
+  - `ws` (number): wind speed in m/s, max 1 decimal place
 
 **Note on optional fields**: This specification defines optional fields to ensure consistent naming and units across implementations. JSON's flexible schema makes it easy to include or omit fields as available. If you have additional data fields you'd like to standardize, please submit a pull request to this specification.
 
@@ -163,11 +166,11 @@ Push live raw GPS/baro points from any number of trackers. Batches may be out-of
       "lon": 12.654321,
       "alt": 1832,
       "p": 970123,
-      "bearing": 285,
-      "ground_speed": 42.5,
+      "bearing": 285.3,
+      "ground_speed": 11.8,
       "vertical_speed": 2.3,
       "wd": 315,
-      "ws": 18.7
+      "ws": 5.2
     },
     {
       "tid": "f2d24a",
@@ -175,8 +178,8 @@ Push live raw GPS/baro points from any number of trackers. Batches may be out-of
       "lat": 47.123567,
       "lon": 12.654213,
       "alt": 1841,
-      "bearing": 290,
-      "ground_speed": 38.2,
+      "bearing": 290.0,
+      "ground_speed": 10.6,
       "vertical_speed": 1.5
     },
     {
@@ -292,7 +295,8 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
 
 ## XCTSK task details
 
-- When `task_details` is present, it MUST contain an `xctsk` object following the XCTSK specification **version 1**.
+- When `task_details` is present, it MUST contain an `xctsk` object following the XCTSK specification.
+- Uses XCTSK **version 1**.
 - The **Ingestor** treats `xctsk` as a pass-through blob; it does not reinterpret its times or geometry.
 - **Specification reference**: [XCTrack Competition Interfaces](https://xctrack.org/Competition_Interfaces.html)
 
