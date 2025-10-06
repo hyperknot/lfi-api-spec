@@ -9,11 +9,11 @@ Push-only, server-to-server ingest protocol for live tracking of paragliders and
 
 ## About this specification
 
-LFIA defines a standard protocol for manufacturers to push live flight tracking data to tracking servers. This document describes the requirements and behavior that both sides must implement to be LFIA-compliant.
+LFI API defines a standard protocol for manufacturers to push live flight tracking data to tracking servers. This document describes the requirements and behavior that both sides must implement to be LFI API-compliant.
 
 ### What this specification defines
 
-- **LFIA** lets a manufacturer's server (**Publisher**) push live tracker points and task metadata to a tracking server (**Ingestor**).
+- **LFI API** is a **server-to-server communication protocol**. End-user devices (trackers, smartphones) communicate with the manufacturer's infrastructure using their own proprietary protocols. This specification only governs how the manufacturer's server (**Publisher**) pushes aggregated tracking data to a tracking server (**Ingestor**).
 - **Push-only architecture**: the **Ingestor** never calls the **Publisher**. There are no pull, webhook, or callback flows.
 - The **Publisher** sends:
   - Raw, unsorted GPS points in small batches, as they are produced.
@@ -41,7 +41,7 @@ This specification uses RFC 2119 keywords (MUST/SHOULD/MAY).
 
 ## Scope
 
-- **Direction**: **Publisher** → **Ingestor** only.
+- **Direction**: **Publisher** → **Ingestor** only (server-to-server).
 - **Format**: JSON over HTTPS; UTF-8; gzip-compressed request bodies.
 - **Coordinate system**: WGS84.
 - **Authentication**: Bearer token REQUIRED.
@@ -70,8 +70,8 @@ This specification uses RFC 2119 keywords (MUST/SHOULD/MAY).
   - **Characters**: uppercase letters, lowercase letters, digits.
   - **Length**: Tokens SHOULD be at least 32 characters long.
   - **Example**: `8Kp1xA3dE6fQ9LmN2rT5vW8yZ1bC4hJ`
-- **Provisioning** (what this means in practice):
-  - **Out-of-band**: Tokens are exchanged outside this protocol (e.g., in person or email).
+- **Provisioning**:
+  - Tokens are **long-lived** credentials exchanged directly between the manufacturer and the tracking server administrator through out-of-band channels (e.g., in-person meeting, email, or encrypted messaging).
   - Each token is assigned to exactly one `manufacturer_id` by the **Ingestor**.
   - The **Ingestor** MAY keep multiple active tokens for the same `manufacturer_id` to allow rotation (issue new token, switch sender, then revoke old).
   - Treat tokens as secrets; do not log or expose them.
@@ -85,7 +85,7 @@ This specification uses RFC 2119 keywords (MUST/SHOULD/MAY).
 - **Coordinates**: `lat`/`lon` in decimal degrees (WGS84). **Publishers** SHOULD send exactly 6 decimal places.
 - **Altitude**: `alt` in integer meters above the WGS84 ellipsoid (GPS altitude).
 - **Optional static pressure**: `p` in integer pascals (if available).
-  - **About static pressure**: This is the raw barometric pressure reading from the sensor, expressed in pascals. While the IGC specification uses "pressure altitude" expressed in meters (which requires conversion using the International Standard Atmosphere model), LFIA uses the raw static pressure in pascals to avoid confusion and conversion errors. This is the same physical measurement, but expressed in its native sensor units. If you have pressure altitude in meters like in an IGC file, you would need to convert it back to static pressure in pascals to comply with this specification.
+  - **About static pressure**: This is the raw barometric pressure reading from the sensor, expressed in pascals. While the IGC specification uses "pressure altitude" expressed in meters (which requires conversion using the International Standard Atmosphere model), LFI API uses the raw static pressure in pascals to avoid confusion and conversion errors. This is the same physical measurement, but expressed in its native sensor units. If you have pressure altitude in meters like in an IGC file, you would need to convert it back to static pressure in pascals to comply with this specification.
 - **Timestamps**:
   - Raw points: UTC, integer seconds since Unix epoch.
   - XCTSK task times: passed through as given by the XCTSK format (see link below).
@@ -113,13 +113,24 @@ Push live raw GPS/baro points from any number of trackers. Batches may be out-of
 ### Request body (schema)
 
 - `manufacturer_id` (string; required): Manufacturer ID, regex `[a-z0-9_]+`
-- `raw_data` (array; required): Each element is a point object:
-  - `tid` (string; required): Manufacturer's tracker identifier (tracker ID); any ASCII string (case-sensitive)
-  - `t` (integer; required): UTC seconds since epoch
-  - `lat` (number; required): latitude in degrees
-  - `lon` (number; required): longitude in degrees
-  - `alt` (integer; required): meters above WGS84 ellipsoid
-  - `p` (integer; optional): static pressure in pascals
+- `raw_data` (array; required): Each element is a point object with the following fields:
+
+#### Required fields:
+  - `tid` (string): Manufacturer's tracker identifier (tracker ID); any ASCII string (case-sensitive)
+  - `t` (integer): UTC seconds since epoch
+  - `lat` (number): latitude in degrees
+  - `lon` (number): longitude in degrees
+  - `alt` (integer): meters above WGS84 ellipsoid
+
+#### Optional fields:
+  - `p` (integer): static pressure in pascals
+  - `bearing` (integer): course over ground, 0-360 degrees, reference True North. This is the direction of travel (course over ground from NMEA GPS), NOT bearing to a waypoint.
+  - `ground_speed` (number): ground speed in km/h, max 1 decimal place
+  - `vertical_speed` (number): vertical speed (vario/climb rate) in m/s, max 1 decimal place
+  - `wd` (integer): wind direction, 0-360 degrees
+  - `ws` (number): wind speed in km/h, max 1 decimal place
+
+**Note on optional fields**: This specification defines optional fields to ensure consistent naming and units across implementations. JSON's flexible schema makes it easy to include or omit fields as available. If you have additional data fields you'd like to standardize, please submit a pull request to this specification.
 
 ### Processing rules (Ingestor)
 
@@ -151,10 +162,30 @@ Push live raw GPS/baro points from any number of trackers. Batches may be out-of
       "lat": 47.123456,
       "lon": 12.654321,
       "alt": 1832,
-      "p": 970123
+      "p": 970123,
+      "bearing": 285,
+      "ground_speed": 42.5,
+      "vertical_speed": 2.3,
+      "wd": 315,
+      "ws": 18.7
     },
-    { "tid": "f2d24a", "t": 1718130060, "lat": 47.123567, "lon": 12.654213, "alt": 1841 },
-    { "tid": "g9x88z", "t": 1718130030, "lat": 47.001234, "lon": 12.331123, "alt": 1599 }
+    {
+      "tid": "f2d24a",
+      "t": 1718130060,
+      "lat": 47.123567,
+      "lon": 12.654213,
+      "alt": 1841,
+      "bearing": 290,
+      "ground_speed": 38.2,
+      "vertical_speed": 1.5
+    },
+    {
+      "tid": "g9x88z",
+      "t": 1718130030,
+      "lat": 47.001234,
+      "lon": 12.331123,
+      "alt": 1599
+    }
   ]
 }
 ```
@@ -360,6 +391,7 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
 
 - Always use HTTPS; never send tokens over plaintext.
 - Do not log `Authorization` headers.
+- Bearer tokens are long-lived credentials; handle them with the same care as passwords.
 
 ---
 
@@ -374,6 +406,8 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
 ## Contributing
 
 This specification is maintained at [github.com/hyperknot/lfi-api-spec](https://github.com/hyperknot/lfi-api-spec).
+
+**Proposing new optional fields**: If you have additional data fields that would be useful to standardize (e.g., battery level, satellite count, signal quality), please submit a pull request. It's better to specify optional fields in the specification than to have each implementation use different names and units. JSON's flexible schema makes it easy to include only the fields you have available while maintaining interoperability.
 
 ---
 
