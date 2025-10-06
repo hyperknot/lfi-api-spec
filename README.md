@@ -82,7 +82,7 @@ This specification uses RFC 2119 keywords (MUST/SHOULD/MAY).
 
 ## Common data rules
 
-- **Coordinates**: `lat`/`lon` in decimal degrees (WGS84). **Publishers** SHOULD send 6 decimal places.
+- **Coordinates**: `lat`/`lon` in decimal degrees (WGS84). **Publishers** SHOULD send exactly 6 decimal places.
 - **Altitude**: `alt` in integer meters above the WGS84 ellipsoid (GPS altitude).
 - **Optional static pressure**: `p` in integer pascals (if available).
   - **About static pressure**: This is the raw barometric pressure reading from the sensor, expressed in pascals. While the IGC specification uses "pressure altitude" expressed in meters (which requires conversion using the International Standard Atmosphere model), LFIA uses the raw static pressure in pascals to avoid confusion and conversion errors. This is the same physical measurement, but expressed in its native sensor units. If you have pressure altitude in meters like in an IGC file, you would need to convert it back to static pressure in pascals to comply with this specification.
@@ -153,8 +153,8 @@ Push live raw GPS/baro points from any number of trackers. Batches may be out-of
       "alt": 1832,
       "p": 970123
     },
-    { "tid": "f2d24a", "t": 1718130060, "lat": 47.123555, "lon": 12.654222, "alt": 1841 },
-    { "tid": "g9x88z", "t": 1718130030, "lat": 47.001122, "lon": 12.331144, "alt": 1599 }
+    { "tid": "f2d24a", "t": 1718130060, "lat": 47.123567, "lon": 12.654213, "alt": 1841 },
+    { "tid": "g9x88z", "t": 1718130030, "lat": 47.001234, "lon": 12.331123, "alt": 1599 }
   ]
 }
 ```
@@ -230,17 +230,17 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
             {
               "type": "TAKEOFF",
               "radius": 200,
-              "waypoint": { "name": "TO", "lat": 46.0, "lon": 13.0, "altSmoothed": 980 }
+              "waypoint": { "name": "TO", "lat": 46.111111, "lon": 13.222222, "altSmoothed": 980 }
             },
             {
               "type": "SSS",
               "radius": 1000,
-              "waypoint": { "name": "Start", "lat": 46.05, "lon": 13.1, "altSmoothed": 1400 }
+              "waypoint": { "name": "Start", "lat": 46.234567, "lon": 13.345678, "altSmoothed": 1400 }
             },
             {
               "type": "ESS",
               "radius": 400,
-              "waypoint": { "name": "Goal", "lat": 46.1, "lon": 13.2, "altSmoothed": 500 }
+              "waypoint": { "name": "Goal", "lat": 46.345678, "lon": 13.456789, "altSmoothed": 500 }
             }
           ]
         }
@@ -276,17 +276,17 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
     {
       "type": "TAKEOFF",
       "radius": 200,
-      "waypoint": { "name": "TO", "lat": 46.0, "lon": 13.0, "altSmoothed": 980 }
+      "waypoint": { "name": "TO", "lat": 46.111111, "lon": 13.222222, "altSmoothed": 980 }
     },
     {
       "type": "SSS",
       "radius": 1000,
-      "waypoint": { "name": "Start", "lat": 46.05, "lon": 13.1, "altSmoothed": 1400 }
+      "waypoint": { "name": "Start", "lat": 46.234567, "lon": 13.345678, "altSmoothed": 1400 }
     },
     {
       "type": "ESS",
       "radius": 400,
-      "waypoint": { "name": "Goal", "lat": 46.1, "lon": 13.2, "altSmoothed": 500 }
+      "waypoint": { "name": "Goal", "lat": 46.345678, "lon": 13.456789, "altSmoothed": 500 }
     }
   ],
   "takeoff": { "timeOpen": "09:30:00Z", "timeClose": "11:00:00Z" },
