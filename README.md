@@ -1,7 +1,7 @@
-# Live Flight Ingest API Specification (LFIA)
+# Live Flight Ingest API Specification (LFI API)
 
 **Version:** 0.1 (Draft)  
-**Repository:** [lfia-spec](https://github.com/hyperknot/lfia-spec)
+**Repository:** [lfi-api-spec](https://github.com/hyperknot/lfi-api-spec)
 
 Push-only, server-to-server ingest protocol for live tracking of paragliders and hang gliders.
 
@@ -373,7 +373,7 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
 
 ## Contributing
 
-This specification is maintained at [github.com/hyperknot/lfia-spec](https://github.com/hyperknot/lfia-spec).
+This specification is maintained at [github.com/hyperknot/lfi-api-spec](https://github.com/hyperknot/lfi-api-spec).
 
 ---
 
