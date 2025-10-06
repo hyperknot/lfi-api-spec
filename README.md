@@ -95,7 +95,7 @@ This specification uses RFC 2119 keywords (MUST/SHOULD/MAY).
   - `manufacturer_id` (like "flymaster"): string matching regex `[a-z0-9_]+`
   - **Tracker IDs**: `tid` in `/raw-data` and keys in `tracker_id_map`. Any non-empty ASCII string, case-sensitive. **Publishers** SHOULD keep tracker IDs stable over time.
     - `tid` stands for "tracker ID."
-  - `group_id`: any non-empty ASCII string, case-sensitive. This is the stable identifier for a logical group/competition across renames.
+  - `group_id`: any non-empty ASCII string, case-sensitive. This is the stable identifier for the group across renames.
   - `group_name`: human-friendly display name for the group; MAY change at any time. Not used for identity or matching.
   - **Reserved `group_id`**: `__FREEFLYERS__`
     - Use this to group free-flying trackers that are not in a competition task.
@@ -180,7 +180,7 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
 - `manufacturer_id` (string; required)
 - `tasks` (array; required): each task object contains:
   - `group_id` (string; required)
-    - Any non-empty ASCII string (case-sensitive). Stable identifier for this logical group across renames.
+    - Any non-empty ASCII string (case-sensitive). Stable identifier for the group across renames.
     - **Reserved `group_id`**: `__FREEFLYERS__`
       - Use this to group free-flying trackers that are not in a competition task.
   - `group_name` (string; optional)
@@ -214,8 +214,8 @@ Provide mappings from manufacturer tracker IDs (`tid`) to pilot/competitor IDs a
   "manufacturer_id": "flymaster",
   "tasks": [
     {
-      "group_id": "europeans_2024",
-      "group_name": "PG Europeans Pegalajar — Task 1",
+      "group_id": "pg_euro_2024",
+      "group_name": "PG Europeans Pegalajar",
       "tracker_id_map": {
         "tx123": { "civl_id": 12001 },
         "tx124": { "civl_id": 12001 },
