@@ -85,7 +85,7 @@ This specification uses RFC 2119 keywords (MUST/SHOULD/MAY).
 - **Coordinates**: `lat`/`lon` in decimal degrees (WGS84). **Publishers** SHOULD send 6 decimal places.
 - **Altitude**: `alt` in integer meters above the WGS84 ellipsoid (GPS altitude).
 - **Optional static pressure**: `p` in integer pascals (if available).
-  - **About static pressure**: This is the raw barometric pressure reading from the sensor, expressed in pascals. While the IGC specification uses "pressure altitude" expressed in meters (which requires conversion using the International Standard Atmosphere model), LFIA uses the raw static pressure in pascals to avoid confusion and conversion errors. This is the same physical measurement, but expressed in its native sensor units. If you have pressure altitude in meters from an IGC file, you would need to convert it back to static pressure in pascals to comply with this specification.
+  - **About static pressure**: This is the raw barometric pressure reading from the sensor, expressed in pascals. While the IGC specification uses "pressure altitude" expressed in meters (which requires conversion using the International Standard Atmosphere model), LFIA uses the raw static pressure in pascals to avoid confusion and conversion errors. This is the same physical measurement, but expressed in its native sensor units. If you have pressure altitude in meters like in an IGC file, you would need to convert it back to static pressure in pascals to comply with this specification.
 - **Timestamps**:
   - Raw points: UTC, integer seconds since Unix epoch.
   - XCTSK task times: passed through as given by the XCTSK format (see link below).
